@@ -6,9 +6,9 @@ load_dotenv()
 
 
 class WhisperService:
-    """
-    Service for handling audio transcription using OpenAI Whisper API
-    """
+    
+    # Service for handling audio transcription using OpenAI Whisper API
+    
     
     def __init__(self):
         api_key = os.getenv("OPENAI_API_KEY")
@@ -19,15 +19,7 @@ class WhisperService:
         self.model = "whisper-1"
     
     async def transcribe(self, audio_file_path: str) -> str:
-        """
-        Transcribe audio file to text using Whisper API
         
-        Args:
-            audio_file_path: Path to the audio file
-            
-        Returns:
-            Transcribed text string
-        """
         try:
             with open(audio_file_path, "rb") as audio_file:
                 transcript = self.client.audio.transcriptions.create(
