@@ -54,26 +54,30 @@ async def transcribe_audio(file: UploadFile = File(...)):
 
         # Save uploaded file temporarily
         suffix = os.path.splitext(file.filename)[1] if file.filename else ".webm"
-        with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp_file:
+        tmp_file = tempfile.NamedTemporaryFile(delete=False, suffix=suffix)
+        tmp_file_path = tmp_file.name
+        tmp_file.close()
+        
+        try:
             content = await file.read()
-            await aiofiles.write(tmp_file.name, content)
+            async with aiofiles.open(tmp_file_path, 'wb') as f:
+                await f.write(content)
 
-            try:
-                # Transcribe audio
-                transcription = await whisper_service.transcribe(tmp_file.name)
-                
-                return JSONResponse(
-                    status_code=200,
-                    content={
-                        "success": True,
-                        "transcription": transcription,
-                        "message": "Audio transcribed successfully"
-                    }
-                )
-            finally:
-                # Clean up temporary file
-                if os.path.exists(tmp_file.name):
-                    os.unlink(tmp_file.name)
+            # Transcribe audio
+            transcription = await whisper_service.transcribe(tmp_file_path)
+            
+            return JSONResponse(
+                status_code=200,
+                content={
+                    "success": True,
+                    "transcription": transcription,
+                    "message": "Audio transcribed successfully"
+                }
+            )
+        finally:
+            # Clean up temporary file
+            if os.path.exists(tmp_file_path):
+                os.unlink(tmp_file_path)
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Transcription error: {str(e)}")
@@ -115,33 +119,37 @@ async def process_audio(file: UploadFile = File(...)):
 
         # Save uploaded file temporarily
         suffix = os.path.splitext(file.filename)[1] if file.filename else ".webm"
-        with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp_file:
+        tmp_file = tempfile.NamedTemporaryFile(delete=False, suffix=suffix)
+        tmp_file_path = tmp_file.name
+        tmp_file.close()
+        
+        try:
             content = await file.read()
-            await aiofiles.write(tmp_file.name, content)
+            async with aiofiles.open(tmp_file_path, 'wb') as f:
+                await f.write(content)
 
-            try:
-                # Step 1: Transcribe audio
-                transcription = await whisper_service.transcribe(tmp_file.name)
-                
-                # Step 2: Generate AI response
-                if transcription and transcription.strip():
-                    ai_response = await agent_service.process_text(transcription)
-                else:
-                    ai_response = "I couldn't transcribe any audio. Please try speaking more clearly."
-                
-                return JSONResponse(
-                    status_code=200,
-                    content={
-                        "success": True,
-                        "transcription": transcription,
-                        "response": ai_response,
-                        "message": "Audio processed successfully"
-                    }
-                )
-            finally:
-                # Clean up temporary file
-                if os.path.exists(tmp_file.name):
-                    os.unlink(tmp_file.name)
+            # Step 1: Transcribe audio
+            transcription = await whisper_service.transcribe(tmp_file_path)
+            
+            # Step 2: Generate AI response
+            if transcription and transcription.strip():
+                ai_response = await agent_service.process_text(transcription)
+            else:
+                ai_response = "I couldn't transcribe any audio. Please try speaking more clearly."
+            
+            return JSONResponse(
+                status_code=200,
+                content={
+                    "success": True,
+                    "transcription": transcription,
+                    "response": ai_response,
+                    "message": "Audio processed successfully"
+                }
+            )
+        finally:
+            # Clean up temporary file
+            if os.path.exists(tmp_file_path):
+                os.unlink(tmp_file_path)
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Processing error: {str(e)}")
@@ -150,3 +158,4 @@ async def process_audio(file: UploadFile = File(...)):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+

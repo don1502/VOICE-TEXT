@@ -35,6 +35,8 @@ class WhisperService:
                     file=audio_file,
                     response_format="text"
                 )
-                return transcript if isinstance(transcript, str) else transcript.text
+                # When response_format="text", the API returns a string directly
+                return str(transcript) if transcript else ""
         except Exception as e:
             raise Exception(f"Whisper transcription failed: {str(e)}")
+

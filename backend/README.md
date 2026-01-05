@@ -9,7 +9,7 @@ FastAPI backend for the Voice-to-Text AI Agent application.
 pip install -r requirements.txt
 ```
 
-2. Create a `.env` file (copy from `.env.example`) and add your API keys:
+2. Create a `.env` file and add your API keys:
 ```
 OPENAI_API_KEY=your_key_here
 ANTHROPIC_API_KEY=your_key_here  # Optional, will use OpenAI if not provided
@@ -29,3 +29,4 @@ API Documentation: `http://localhost:8000/docs`
 - `POST /api/transcribe` - Transcribe audio file
 - `POST /api/generate-response` - Generate AI response from text
 - `POST /api/process-audio` - Complete pipeline (transcribe + AI response)
+
