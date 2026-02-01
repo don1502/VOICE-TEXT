@@ -82,12 +82,7 @@ cd frontend
 npm install
 ```
 
-3. (Optional) Create a `.env` file if you need to customize the API URL:
-```env
-VITE_API_URL=http://localhost:8000
-```
-
-4. Start the development server:
+3. Start the development server:
 ```bash
 npm run dev
 ```
