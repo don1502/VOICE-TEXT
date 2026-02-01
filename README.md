@@ -105,6 +105,12 @@ The frontend will be available at `http://localhost:5173`
 
 ## Development
 
+### Frontend Development
+```bash
+cd frontend
+npm run dev
+```
+
 ### Backend Development
 ```bash
 cd backend
