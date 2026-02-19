@@ -5,93 +5,67 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    'Content-Type': 'multipart/form-data',
+    'Content-Type': 'application/json',
   },
 })
 
-export interface ProcessAudioResponse {
+export interface AgentResponse {
   success: boolean
-  transcription: string
-  response: string
+  action: string
+  intent: string
   message: string
+  details: Record<string, string>
+  parsed: {
+    to?: string
+    subject?: string
+    body?: string
+  }
 }
 
-export interface TranscribeResponse {
-  success: boolean
-  transcription: string
-  message: string
+export interface AgentCapability {
+  id: string
+  name: string
+  description: string
+  icon: string
+  example: string
 }
 
-export interface GenerateResponseRequest {
-  text: string
+export interface AgentStatusResponse {
+  status: string
+  capabilities: AgentCapability[]
+  email_configured: boolean
 }
 
-export interface GenerateResponseResponse {
-  success: boolean
-  response: string
-  message: string
-}
-
-export const processAudio = async (
-  formData: FormData
-): Promise<ProcessAudioResponse> => {
+export const executeAgent = async (text: string): Promise<AgentResponse> => {
   try {
-    const response = await api.post<ProcessAudioResponse>(
-      '/api/process-audio',
-      formData
-    )
+    const response = await api.post<AgentResponse>('/api/agent/execute', {
+      text,
+    })
     return response.data
   } catch (error) {
     if (axios.isAxiosError(error)) {
       throw new Error(
         error.response?.data?.detail ||
           error.message ||
-          'Failed to process audio'
+          'Failed to execute agent command'
       )
     }
-    throw new Error('Failed to process audio')
+    throw new Error('Failed to execute agent command')
   }
 }
 
-export const transcribeAudio = async (
-  formData: FormData
-): Promise<TranscribeResponse> => {
+export const getAgentStatus = async (): Promise<AgentStatusResponse> => {
   try {
-    const response = await api.post<TranscribeResponse>(
-      '/api/transcribe',
-      formData
-    )
+    const response = await api.get<AgentStatusResponse>('/api/agent/status')
     return response.data
   } catch (error) {
     if (axios.isAxiosError(error)) {
       throw new Error(
         error.response?.data?.detail ||
           error.message ||
-          'Failed to transcribe audio'
+          'Failed to get agent status'
       )
     }
-    throw new Error('Failed to transcribe audio')
+    throw new Error('Failed to get agent status')
   }
 }
-
-export const generateResponse = async (
-  text: string
-): Promise<GenerateResponseResponse> => {
-  try {
-    const response = await api.post<GenerateResponseResponse>(
-      '/api/generate-response',
-      { text } as GenerateResponseRequest
-    )
-    return response.data
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      throw new Error(
-        error.response?.data?.detail ||
-          error.message ||
-          'Failed to generate response'
-      )
-    }
-    throw new Error('Failed to generate response')
-  }
-}
-
