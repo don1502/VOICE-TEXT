@@ -1,10 +1,6 @@
 fastapi==0.115.0
 uvicorn[standard]==0.32.0
-python-multipart==0.0.12
 python-dotenv==1.0.1
-openai==1.54.3
-anthropic==0.39.0
 pydantic==2.9.2
 pydantic-settings==2.5.2
-aiofiles==24.1.0
-
+google-generativeai>=0.8.0
