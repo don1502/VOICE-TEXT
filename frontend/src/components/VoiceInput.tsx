@@ -117,9 +117,12 @@ export default function VoiceInput({
     }
 
     return (
-        <div className="voice-input-container">
+        <div className="flex flex-col gap-2.5">
             {/* Text Input */}
-            <form onSubmit={handleTextSubmit} className="text-input-form">
+            <form
+                onSubmit={handleTextSubmit}
+                className="flex items-center gap-2 bg-slate-50 border border-slate-200/60 rounded-2xl pl-5 pr-1.5 py-1.5 transition-all duration-300 focus-within:border-primary-400 focus-within:ring-[3px] focus-within:ring-primary-500/10"
+            >
                 <input
                     type="text"
                     value={textInput}
@@ -131,7 +134,7 @@ export default function VoiceInput({
                             : 'Type a command or use the mic...'
                     }
                     disabled={isProcessing || isListening}
-                    className="text-input"
+                    className="flex-1 bg-transparent border-none outline-none text-slate-700 text-sm font-sans placeholder:text-slate-400 disabled:opacity-50"
                     id="command-input"
                 />
 
@@ -140,17 +143,20 @@ export default function VoiceInput({
                     type="button"
                     onClick={isListening ? stopListening : startListening}
                     disabled={isProcessing}
-                    className={`voice-btn ${isListening ? 'listening' : ''}`}
+                    className={`w-10 h-10 border-none rounded-xl flex items-center justify-center shrink-0 cursor-pointer transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed ${isListening
+                            ? 'bg-red-50 text-red-500 animate-pulse-border'
+                            : 'bg-white text-slate-400 hover:bg-primary-50 hover:text-primary-500 shadow-sm'
+                        }`}
                     title={isListening ? 'Stop listening' : 'Start voice input'}
                     id="voice-btn"
                 >
                     {isListening ? (
-                        <div className="voice-waves">
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                            <span></span>
+                        <div className="flex items-center gap-0.5 h-5">
+                            <span className="w-[3px] h-[30%] bg-red-500 rounded-sm animate-wave-1"></span>
+                            <span className="w-[3px] h-[60%] bg-red-500 rounded-sm animate-wave-2"></span>
+                            <span className="w-[3px] h-full bg-red-500 rounded-sm animate-wave-3"></span>
+                            <span className="w-[3px] h-[60%] bg-red-500 rounded-sm animate-wave-4"></span>
+                            <span className="w-[3px] h-[30%] bg-red-500 rounded-sm animate-wave-5"></span>
                         </div>
                     ) : (
                         <svg
@@ -174,7 +180,7 @@ export default function VoiceInput({
                 <button
                     type="submit"
                     disabled={isProcessing || !textInput.trim()}
-                    className="send-btn"
+                    className="w-10 h-10 border-none rounded-xl bg-gradient-to-br from-primary-500 to-violet-500 text-white cursor-pointer flex items-center justify-center shrink-0 transition-all duration-300 hover:enabled:scale-105 hover:enabled:shadow-lg hover:enabled:shadow-primary-500/20 disabled:opacity-30 disabled:cursor-not-allowed"
                     title="Send command"
                     id="send-btn"
                 >
@@ -196,12 +202,14 @@ export default function VoiceInput({
 
             {/* Live Transcript */}
             {isListening && transcript && (
-                <div className="live-transcript">
-                    <div className="live-indicator">
-                        <span className="live-dot"></span>
+                <div className="flex items-start gap-2.5 px-3.5 py-2.5 bg-red-50 border border-red-100/60 rounded-xl animate-fade-in">
+                    <div className="flex items-center gap-1.5 text-[0.65rem] font-bold text-red-500 uppercase tracking-widest shrink-0">
+                        <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse-dot"></span>
                         LIVE
                     </div>
-                    <p>{transcript}</p>
+                    <p className="text-sm text-slate-500 italic leading-relaxed">
+                        {transcript}
+                    </p>
                 </div>
             )}
         </div>
