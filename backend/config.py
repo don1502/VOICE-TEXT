@@ -17,11 +17,11 @@ class Settings(BaseSettings):
         description="Google Gemini API key. Get free at https://aistudio.google.com/apikey"
     )
     gemini_model: str = Field(
-        default="gemini-2.0-flash",
+        default="gemini-3.8-flash",
         description="Primary Gemini model to use"
     )
     gemini_fallback_model: str = Field(
-        default="gemini-2.0-flash-lite",
+        default="gemini-3.5-flash-lite",
         description="Fallback model if primary is unavailable or quota-limited"
     )
     gemini_max_retries: int = Field(

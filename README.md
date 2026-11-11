@@ -1,127 +1,113 @@
-# Voice-to-Text AI Agent
+# Voice AI Agent
 
-An intelligent voice agent that captures audio input (voice or pre-recorded audio), processes it intelligently using AI, and delivers contextual text output with advanced understanding.
+An intelligent agent that takes a natural-language command — **typed or spoken** —
+understands the context with **Google Gemini**, **writes a professional email**
+for you, and sends it via **Gmail**. Speak something like *"email john@acme.com
+that the demo is rescheduled to Friday 3pm"* and the agent composes and delivers
+the message.
 
 ## Features
 
-### Phase 1 MVP (Current)
-- ✅ **Voice Recording**: Record audio directly from your browser using Web Audio API
-- ✅ **Audio File Upload**: Upload audio files (MP3, WAV, M4A, WEBM, etc.)
-- ✅ **Speech-to-Text**: Accurate transcription using OpenAI Whisper API
-- ✅ **Modern UI**: Clean, responsive interface built with React, TypeScript, and Tailwind CSS
-- ✅ **Real-time Processing**: Live feedback during audio processing
-
-### Phase 2 (Planned)
-- 🔄 Multi-turn conversations with context memory
-- 🔄 Task-specific modes (summarization, Q&A, meeting transcription)
-- 🔄 User preferences and customization
-- 🔄 Conversation history
-- 🔄 Database integration
+- 🎙️ **Voice commands** — browser speech recognition (Web Speech API)
+- ⌨️ **Type commands too** — works without a mic
+- 🧠 **Context-aware intent parsing** — Gemini figures out what you want
+- ✍️ **Email authoring** — infers the subject and writes a professional body from your context
+- 📧 **Sends real email** — Gmail SMTP with HTML formatting + sanitization
+- 💬 **General chat** — ask questions when you're not sending mail
+- 🔁 **Resilient** — retries with exponential backoff and automatic model fallback
+- 🧵 **Conversation memory** — resolves references like *"send that as an email"*
 
 ## Technology Stack
 
 ### Frontend
-- **React 19** with **TypeScript**
+- **React 19** + **TypeScript**
 - **Tailwind CSS** for styling
 - **Vite** for build tooling
-- **TanStack Query** for data fetching
-- **Web Audio API** for browser-based audio recording
-- **Axios** for API communication
+- **Axios** for API calls
+- **Web Speech API** for voice input
 
 ### Backend
-- **FastAPI** (Python) for REST API
-- **OpenAI Whisper API** for speech-to-text transcription
-- **PostgreSQL** For data storage
+- **FastAPI** (Python 3.10+)
+- **Google Gemini** (`google-generativeai`) for intent + email authoring
+- **aiosmtplib** for async Gmail SMTP delivery
+- **bleach** for HTML sanitization
+- **pydantic-settings** for configuration
 
-
-## Setup Instructions
+## Setup
 
 ### Prerequisites
-
 - **Node.js** 18+ and npm
-- **Python** 3.9+
+- **Python** 3.10+
+- A **Gemini API key** (free): https://aistudio.google.com/apikey
+- A **Gmail App Password**: https://myaccount.google.com/apppasswords
 
-### Backend Setup
+### Backend
 
-1. Navigate to the backend directory:
 ```bash
 cd backend
-```
-
-2. Create a virtual environment:
-```bash
 python -m venv venv
-```
+# Windows
+venv\Scripts\activate
+# macOS/Linux
+source venv/bin/activate
 
-3. Activate the virtual environment:
-   - **Windows**: `venv\Scripts\activate`
-   - **macOS/Linux**: `source venv/bin/activate`
-
-4. Install dependencies:
-```bash
 pip install -r requirements.txt
-```
 
-5. Run the backend server:
-```bash
+# configure
+copy .env.example .env   # Windows
+cp .env.example .env     # macOS/Linux
+# ...edit .env and fill in GEMINI_API_KEY, GMAIL_ADDRESS, GMAIL_APP_PASSWORD
+
 uvicorn main:app --reload --port 8000
 ```
 
-The API will be available at `http://localhost:8000`
-API Documentation: `http://localhost:8000/docs`
+API: http://localhost:8000 — docs at http://localhost:8000/docs
 
-### Frontend Setup
+### Frontend
 
-1. Navigate to the frontend directory:
 ```bash
 cd frontend
-```
-
-2. Install dependencies:
-```bash
 npm install
-```
-
-3. Start the development server:
-```bash
 npm run dev
 ```
 
-The frontend will be available at `http://localhost:5173`
+App: http://localhost:5173
 
 ## Usage
 
-1. **Start both servers** (backend on port 8000, frontend on port 5173)
+1. Start both servers (backend on `:8000`, frontend on `:5173`).
+2. Open http://localhost:5173.
+3. Click the mic and speak, or type a command such as:
+   - *"Send an email to jane@example.com about the project update"*
+   - *"Email my teammate at bob@acme.com that I'll be 10 minutes late"*
+4. The agent parses your intent, writes the email, sends it, and shows the
+   recipient, subject, and body it composed.
 
-2. **Open your browser** and navigate to `http://localhost:5173`
+> Tip: If email isn't configured, the agent still parses intent and chats —
+> it just reports that email delivery is unavailable until you set
+> `GMAIL_ADDRESS` and `GMAIL_APP_PASSWORD`.
 
-3. **Record or Upload Audio**:
-   - Click "Start Recording" to record audio from your microphone
-   - Or drag and drop/click to upload an audio file
+## Project Structure
 
-4. **View Results**:
-   - The transcribed text will appear in the Transcription section
-   - The AI-generated response will appear below in the AI Response section
-
-## Development
-
-### Frontend Development
-```bash
-cd frontend
-npm run dev
+```
+backend/
+  main.py                    FastAPI app, routes, request/response models
+  config.py                  Pydantic settings + logging
+  services/
+    agent_service.py         Gemini intent parsing + orchestration
+    email_service.py         Async Gmail SMTP sending + sanitization
+  requirements.txt
+  .env.example
+frontend/
+  src/
+    App.tsx                  Chat UI shell
+    components/              VoiceInput, ChatMessage, AgentStatus
+    services/api.ts          Backend API client
+  .env.example
 ```
 
-### Backend Development
-```bash
-cd backend
-uvicorn main:app --reload --port 8000
-```
-
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-- [ ] Phase 2 - Multi-turn conversations and advanced features
-- [ ] Phase 3 - User authentication and data persistence
-- [ ] Phase 4 - Advanced task execution and integrations
-
+## Roadmap
+- [ ] Draft-before-send confirmation step
+- [ ] Attachments and CC/BCC
+- [ ] Persistent conversation history (database)
+- [ ] User authentication

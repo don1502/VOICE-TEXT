@@ -69,9 +69,24 @@ class AgentService:
                         "Gemini call attempt %d/%d on %s",
                         attempt, self.settings.gemini_max_retries, label,
                     )
-                    response = model.generate_content(prompt)
+                    # Run the blocking SDK call in a thread with a hard timeout
+                    # so a slow/hanging model can't block the event loop forever.
+                    response = await asyncio.wait_for(
+                        asyncio.to_thread(model.generate_content, prompt),
+                        timeout=self.settings.gemini_timeout_seconds,
+                    )
                     logger.info("Gemini response received from %s", label)
                     return response.text.strip()
+
+                except asyncio.TimeoutError as e:
+                    last_error = e
+                    logger.warning(
+                        "Gemini call to %s timed out after %ds (attempt %d)",
+                        label, self.settings.gemini_timeout_seconds, attempt,
+                    )
+                    if attempt < self.settings.gemini_max_retries:
+                        continue
+                    break  # Move to fallback model
 
                 except Exception as e:
                     last_error = e
